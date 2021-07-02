@@ -1,0 +1,17 @@
+# Folders
+__pycache__/
+build/
+.idea/
+.ipynb_checkpoints/
+*.egg-info
+
+
+# Files
+*.weights
+*.t7
+*.jpg
+*.png
+*.mp4
+*.mkv
+*.avi
+*.so
