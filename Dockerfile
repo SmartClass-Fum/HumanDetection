@@ -12,7 +12,8 @@ RUN pip install torch==1.4.0+cpu torchvision==0.5.0+cpu -f https://download.pyto
 RUN pip3 install -r requirements.txt
 RUN apt update && apt install -y libsm6 libxext6
 RUN apt-get install -y libxrender-dev
-#RUN python3 download_models.py
+RUN python3 download_models.py
 WORKDIR detector/YOLOv3/nms/ext
 RUN python3 build.py build_ext develop
 WORKDIR ../../../..
+ENTRYPOINT [ "python3", "main.py" ]
