@@ -6,7 +6,7 @@ from detector import build_detector
 from utils.parser import get_config
 import paho.mqtt.client as mqtt
 import base64
-import logging
+
 detector = None
 
 class Server:
@@ -14,11 +14,11 @@ class Server:
     #broker_address = "mqtt.eclipse.org"
     def __init__(self,args):
         # subscriber
-        logging.info('Creating new instance')
+        print('Creating new instance')
         self.client = mqtt.Client("ObjectDetectorFum123")
         self.client.on_message = self.on_message  # attach function to callback
         self.client.connect(self.broker_address)  # connect to broker
-        logging.info("Subscribing to topic Camera")
+        print("Subscribing to topic Camera")
         self.client.subscribe("fumSmartClassIot/camera")
 
         # publisher
@@ -31,7 +31,7 @@ class Server:
         self.detector = build_detector(cfg, use_cuda=False)
 
     def on_message(self,client,userdata, message):
-        logging.info(f'Getting data from client {client}')
+        print('getting data...')
         data = json.loads(message.payload)
 
         encode_image = data['encode_image']
@@ -47,11 +47,11 @@ class Server:
         is_person_list = cls_ids == 0
         found_person = bool(is_person_list.any())
         if found_person:
-            logging.info('Found person')
+            print('Found')
         else:
-            logging.info('Person not found')
+            print('Not found')
         self.publish_result(class_id,time_stamp,found_person)
-
+        '''
         mask = cls_ids == 0
         bbox_xywh = bbox_xywh[mask]
         # bbox dilation just in case bbox too small, delete this line if using a better pedestrian detector
@@ -68,15 +68,17 @@ class Server:
                 cv2.rectangle(im, (x1, y1), (x2, y2), (255, 255, 255), 3)
         im = cv2.cvtColor(im,cv2.COLOR_RGB2BGR)
         cv2.imwrite(f'output/{class_id}.jpg',im)
+        '''
 
     def publish_result(self,class_id,time_stamp,human_detected):
-        logging.info('Publishing the processed data')
         data = {'class_id':class_id,'time_stamp':time_stamp,'human_detected':human_detected}
+        print('publishing')
         response = self.client.publish("fumSmartClassIot/deepDetector", json.dumps(data))
+        print('published')
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+#    logger = logging.Logger()
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_detection", type=str, default="./configs/yolov3.yaml")
     # parser.add_argument("--ignore_display", dest="display", action="store_false", default=True)
